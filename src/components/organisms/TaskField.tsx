@@ -5,7 +5,7 @@ import tick from "../../assests/icons/tick.png";
 import { useSelector, useDispatch } from "react-redux";
 import { clearRedact } from "../../redux/features/editTask";
 import { updateStatus } from "../../redux/features/storageUpdate";
-import { postToDo, putToDo } from "../../api";
+import { postToDo, putToDo } from "../../api/ToDoTasksAPI";
 
 export type TaskType = {
   id: number;
@@ -24,13 +24,13 @@ const TaskField = () => {
     setValue(editTask.task);
   }, [editTask]);
 
-  const handleTask = () => {
+  const handleTask = async () => {
     if (editTask.id !== 0) {
-      putToDo(editTask.id, value);
+      await putToDo(editTask.id, value);
       dispatch(clearRedact());
       dispatch(updateStatus("Update Task"));
     } else {
-      postToDo(value);
+      await postToDo(value);
       dispatch(updateStatus("New Task"));
     }
     setValue("");

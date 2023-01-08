@@ -1,10 +1,17 @@
 import { TaskType } from "../components/organisms/TaskField";
 
-const toDoList: TaskType[] = JSON.parse(
-  localStorage.getItem("toDoList") || "[]"
-);
+let toDoList: TaskType[] = JSON.parse(localStorage.getItem("toDoList") || "[]");
 
-export const getToDos = () => {
+const setToDoList = () => {
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(localStorage.setItem("toDoList", JSON.stringify(toDoList)));
+    }, 1000);
+  });
+  return promise;
+};
+
+export const getToDoList = () => {
   const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(toDoList);
@@ -30,27 +37,17 @@ export const postToDo = (task: string) => {
     localStorage.setItem("taskNo", "1");
   }
   toDoList.push(newTask);
-
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(localStorage.setItem("toDoList", JSON.stringify(toDoList)));
-    }, 1000);
-  });
-  return promise;
+  return setToDoList();
 };
 
 export const putToDo = (id: number, task: string) => {
-  const updatedToDoList: TaskType[] = toDoList.map((todo: TaskType) =>
+  toDoList = toDoList.map((todo: TaskType) =>
     todo.id === id ? { id, task } : todo
   );
+  return setToDoList();
+};
 
-  console.log(updatedToDoList);
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(
-        localStorage.setItem("toDoList", JSON.stringify(updatedToDoList))
-      );
-    }, 1000);
-  });
-  return promise;
+export const deleteToDo = (id: number) => {
+  toDoList = toDoList.filter((task: TaskType) => task.id !== id);
+  return setToDoList();
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getCompletedList } from "../../api/CompletedTasksAPI";
 import CompletedTask from "../molecules/CompletedTask";
 import { TaskType } from "./TaskField";
 
@@ -8,9 +9,16 @@ const CompletedList = () => {
   const storageStatus = useSelector(
     (state: any) => state.storageUpdate.storageStatus
   );
+
+  const getCompleted = async () => {
+    const toDos = await getCompletedList();
+    if (Array.isArray(toDos)) setCompletedList(toDos);
+  };
+
   useEffect(() => {
-    setCompletedList(JSON.parse(localStorage.getItem("completedList") || "[]"));
-  }, [storageStatus]);
+    getCompleted();
+  }, [completedList]);
+
   return (
     <div
       style={{

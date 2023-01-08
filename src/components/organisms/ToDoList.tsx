@@ -4,6 +4,8 @@ import { TaskType } from "./TaskField";
 import { useDispatch, useSelector } from "react-redux";
 import { redactTask } from "../../redux/features/editTask";
 import { updateStatus } from "../../redux/features/storageUpdate";
+import { deleteToDo, getToDoList } from "../../api/ToDoTasksAPI";
+import { postCompleted } from "../../api/CompletedTasksAPI";
 
 const ToDoList = () => {
   const dispatch = useDispatch();
@@ -13,40 +15,32 @@ const ToDoList = () => {
 
   const [toDoList, setToDoList] = useState<TaskType[]>([]);
 
-  useEffect(() => {
-    setToDoList(JSON.parse(localStorage.getItem("toDoList") || "[]"));
-  }, [storageStatus]);
+  const getToDos = async () => {
+    const toDos = await getToDoList();
+    if (Array.isArray(toDos)) setToDoList(toDos);
+  };
 
-  const handleDone = (todo: TaskType) => {
-    const hasList = localStorage.getItem("completedList") !== null;
-    if (hasList) {
-      let completedList = JSON.parse(
-        localStorage.getItem("completedList") || ""
-      );
-      let doneTask: TaskType = todo;
-      completedList.push(doneTask);
-      localStorage.setItem("completedList", JSON.stringify(completedList));
-    } else {
-      let completedList = [];
-      let newTask: TaskType = todo;
-      completedList.push(newTask);
-      localStorage.setItem("completedList", JSON.stringify(completedList));
-    }
+  const handleDone = async (todo: TaskType) => {
+    await postCompleted(todo);
     handleDelete(todo);
     dispatch(updateStatus("Done Task"));
   };
 
-  const handleEdit = (todo: TaskType) => {
+  const handleEdit = async (todo: TaskType) => {
     dispatch(redactTask(todo));
     dispatch(updateStatus("Edit Task"));
+    getToDos();
   };
 
-  const handleDelete = (todo: TaskType) => {
-    let toDoList = JSON.parse(localStorage.getItem("toDoList") || "");
-    toDoList = toDoList.filter((task: TaskType) => task.id !== todo.id);
-    localStorage.setItem("toDoList", JSON.stringify(toDoList));
+  const handleDelete = async (todo: TaskType) => {
+    await deleteToDo(todo.id);
     dispatch(updateStatus("Delete Task"));
+    getToDos();
   };
+
+  useEffect(() => {
+    getToDos();
+  }, [toDoList]);
 
   return (
     <div
