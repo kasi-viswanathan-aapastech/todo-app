@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { getCompletedList } from "../../api/CompletedTasksAPI";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCompletedList,
+  resetCompletedList,
+} from "../../api/CompletedTasksAPI";
 import CompletedTask from "../molecules/CompletedTask";
+import { updateStatus } from "../../redux/features/storageUpdate";
 import { TaskType } from "./TaskField";
 
 const CompletedList = () => {
+  const dispatch = useDispatch();
   const [completedList, setCompletedList] = useState<TaskType[]>([]);
   const storageStatus = useSelector(
     (state: any) => state.storageUpdate.storageStatus
@@ -16,8 +21,13 @@ const CompletedList = () => {
   };
 
   useEffect(() => {
+    if (storageStatus.payload === "Delete All") {
+      resetCompletedList();
+      dispatch(updateStatus(""));
+    }
     getCompleted();
-  }, [completedList]);
+    // eslint-disable-next-line
+  }, [storageStatus]);
 
   return (
     <div

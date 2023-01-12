@@ -51,3 +51,7 @@ export const deleteToDo = (id: number) => {
   toDoList = toDoList.filter((task: TaskType) => task.id !== id);
   return setToDoList();
 };
+
+export const resetToDoList = () => {
+  toDoList = [];
+};

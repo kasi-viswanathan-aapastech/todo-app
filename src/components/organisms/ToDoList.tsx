@@ -4,7 +4,7 @@ import { TaskType } from "./TaskField";
 import { useDispatch, useSelector } from "react-redux";
 import { redactTask } from "../../redux/features/editTask";
 import { updateStatus } from "../../redux/features/storageUpdate";
-import { deleteToDo, getToDoList } from "../../api/ToDoTasksAPI";
+import { deleteToDo, getToDoList, resetToDoList } from "../../api/ToDoTasksAPI";
 import { postCompleted } from "../../api/CompletedTasksAPI";
 
 const ToDoList = () => {
@@ -26,21 +26,24 @@ const ToDoList = () => {
     dispatch(updateStatus("Done Task"));
   };
 
-  const handleEdit = async (todo: TaskType) => {
+  const handleEdit = (todo: TaskType) => {
     dispatch(redactTask(todo));
     dispatch(updateStatus("Edit Task"));
-    getToDos();
   };
 
   const handleDelete = async (todo: TaskType) => {
     await deleteToDo(todo.id);
     dispatch(updateStatus("Delete Task"));
-    getToDos();
   };
 
   useEffect(() => {
+    if (storageStatus.payload === "Delete All") {
+      resetToDoList();
+      dispatch(updateStatus(""));
+    }
     getToDos();
-  }, [toDoList]);
+    // eslint-disable-next-line
+  }, [storageStatus]);
 
   return (
     <div

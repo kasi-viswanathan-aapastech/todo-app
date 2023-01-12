@@ -28,3 +28,7 @@ export const postCompleted = (task: TaskType) => {
   completedList.push(task);
   return setCompletedList();
 };
+
+export const resetCompletedList = () => {
+  completedList = [];
+};
