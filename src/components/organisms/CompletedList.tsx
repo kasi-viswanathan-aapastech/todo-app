@@ -1,16 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCompletedList,
+  resetCompletedList,
+} from "../../api/CompletedTasksAPI";
 import CompletedTask from "../molecules/CompletedTask";
+import { updateStatus } from "../../redux/features/storageUpdate";
 import { TaskType } from "./TaskField";
 
 const CompletedList = () => {
+  const dispatch = useDispatch();
   const [completedList, setCompletedList] = useState<TaskType[]>([]);
   const storageStatus = useSelector(
     (state: any) => state.storageUpdate.storageStatus
   );
+
+  const getCompleted = async () => {
+    const toDos = await getCompletedList();
+    if (Array.isArray(toDos)) setCompletedList(toDos);
+  };
+
   useEffect(() => {
-    setCompletedList(JSON.parse(localStorage.getItem("completedList") || "[]"));
+    if (storageStatus.payload === "Delete All") {
+      resetCompletedList();
+      dispatch(updateStatus(""));
+    }
+    getCompleted();
+    // eslint-disable-next-line
   }, [storageStatus]);
+
   return (
     <div
       style={{

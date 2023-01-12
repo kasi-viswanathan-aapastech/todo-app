@@ -5,6 +5,7 @@ import tick from "../../assests/icons/tick.png";
 import { useSelector, useDispatch } from "react-redux";
 import { clearRedact } from "../../redux/features/editTask";
 import { updateStatus } from "../../redux/features/storageUpdate";
+import { postToDo, putToDo } from "../../api/ToDoTasksAPI";
 
 export type TaskType = {
   id: number;
@@ -23,34 +24,13 @@ const TaskField = () => {
     setValue(editTask.task);
   }, [editTask]);
 
-  const handleTask = () => {
+  const handleTask = async () => {
     if (editTask.id !== 0) {
-      let toDoList = JSON.parse(localStorage.getItem("toDoList") || "");
-      toDoList = toDoList.map((todo: TaskType) =>
-        todo.id === editTask.id ? { id: todo.id, task: value } : todo
-      );
-      localStorage.setItem("toDoList", JSON.stringify(toDoList));
+      await putToDo(editTask.id, value);
       dispatch(clearRedact());
       dispatch(updateStatus("Update Task"));
     } else {
-      const hasTask = localStorage.getItem("taskNo") !== null;
-      if (hasTask) {
-        let toDoList = JSON.parse(localStorage.getItem("toDoList") || "");
-        let taskNo = parseInt(localStorage.getItem("taskNo")!) + 1;
-        localStorage.setItem("taskNo", taskNo.toString());
-        let newTask: TaskType = {
-          id: taskNo,
-          task: value,
-        };
-        toDoList.push(newTask);
-        localStorage.setItem("toDoList", JSON.stringify(toDoList));
-      } else {
-        localStorage.setItem("taskNo", "1");
-        let toDoList = [];
-        let newTask: TaskType = { id: 1, task: value };
-        toDoList.push(newTask);
-        localStorage.setItem("toDoList", JSON.stringify(toDoList));
-      }
+      await postToDo(value);
       dispatch(updateStatus("New Task"));
     }
     setValue("");
